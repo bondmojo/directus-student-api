@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { UpdateFilesModule } from './update-files/update-files.module';
+import { FilesModule } from './files/files.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DirectusModule } from './students/directus-students.module';
+import { DirectusStudentsModule } from './students/directus-students.module';
 import { ConfigModule } from '@nestjs/config';
+import { APIModule } from './apis/api.module';
 
 
 @Module({
@@ -11,8 +12,9 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true, // Makes the environment variables available globally
     }),
-    DirectusModule,
-    UpdateFilesModule],
+    APIModule,
+    DirectusStudentsModule,
+    FilesModule],
   controllers: [AppController],
   providers: [AppService],
 })

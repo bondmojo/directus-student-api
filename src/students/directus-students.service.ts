@@ -3,12 +3,18 @@ import axios from 'axios';
 import * as fs from 'fs-extra';
 import * as archiver from 'archiver';
 import { join } from 'path';
+import { DirectusAPIService } from '../apis/du-api-request.service';
 
 @Injectable()
 export class DirectusStudentsService {
     private readonly directusUrl = 'http:/localhost:8055'; // Replace with your Directus URL
     private readonly directusToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijg4Nzk4NzgzLTIyNjQtNDM1OC05Nzg2LWMyZWY3ZWNkNDY1YiIsInJvbGUiOiJkMzAzMjQzNi01NzRhLTQ2ZDMtYWU0Mi00NTAzOGJlZmZhZGQiLCJhcHBfYWNjZXNzIjpmYWxzZSwiYWRtaW5fYWNjZXNzIjpmYWxzZSwiaWF0IjoxNzI2NzM0MzA3LCJleHAiOjE3MjY3MzUyMDcsImlzcyI6ImRpcmVjdHVzIn0.DmaH0uZGQmWqBqghxJJ5XtIJZoyHsyF5Mmc6CFDCuJk'
     private readonly logger = new Logger(DirectusStudentsService.name);
+
+
+    constructor(private readonly directusRequestService: DirectusAPIService) {
+
+    }
     // Function to fetch student data from Directus for specific IDs
     async fetchStudentDataByIds(ids: string[]): Promise<any> {
         try {
@@ -29,7 +35,20 @@ export class DirectusStudentsService {
         } catch (error) {
             this.logger.error(error);
             throw new HttpException(
-                'Failed to fetch students from Directus',
+                `Failed to fetch students from Directus`,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    async fetchStudentDataById(id: string): Promise<any> {
+        try {
+            return await this.directusRequestService.getRequest(`/items/students/${id}?fields=*.*`, 'students');
+        }
+        catch (error) {
+            this.logger.error(error);
+            throw new HttpException(
+                `Failed to fetch student details from Directus`,
                 HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }

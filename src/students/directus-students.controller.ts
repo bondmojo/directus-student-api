@@ -9,6 +9,7 @@ export class DirectusStudentsController {
 
     constructor(private readonly directusService: DirectusStudentsService) {
     }
+
     @Get('download-students')
     async downloadStudentsZip(
         @Query('ids') studentIds: string, // Accept student IDs as query parameter

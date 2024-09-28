@@ -47,7 +47,7 @@ export class AuthService {
         if (!this.access_token || now > this.expiry) {
             const result = await this.login();
             this.access_token = result.access_token;
-            this.expiry = result.expires;
+            this.expiry = Date.now() + result.expires;
         }
         return this.access_token;
 
