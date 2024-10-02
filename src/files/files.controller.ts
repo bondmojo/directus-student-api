@@ -21,8 +21,8 @@ export class FilesController {
         return await this.directusAPIService.getRequest(fileEndpoint, 'Get-File-API');
     }
 
-    @Post('createFolders')
-    async createFolders(@Body() body) {
+    @Post('createFolder')
+    async createFolder(@Body() body) {
         this.logger.log("new school created: createFolders: " + JSON.stringify(body));
         if (body.parent) {
             return {
@@ -30,8 +30,7 @@ export class FilesController {
                 message: "Folder is not at root level"
             }
         }
-        return {};
-        return await this.filesService.populateFolderNames();
+        return await this.filesService.createFolder(body.school_name);
     }
 
     @Post('refreshFolders')
@@ -52,18 +51,18 @@ export class FilesController {
         this.logger.log(ev);
 
         const event = triggeredStudentData.event;
-        const payload = triggeredStudentData.payload;
         let studentId: string;
         let studentDetails: any;
-        this.logger.log("payload" + JSON.stringify(payload));
 
-        if (!payload.student_photo) {
+        //const payload = triggeredStudentData.payload;
+        //this.logger.log("payload" + JSON.stringify(payload));
+        /*if (!payload.student_photo) {
             this.logger.log("No Photo Found.");
             return {
                 status: false,
                 message: "No Photo Found."
             }
-        }
+        }*/
 
         if (event === "students.items.update") {
             studentId = triggeredStudentData.keys;
@@ -92,11 +91,19 @@ export class FilesController {
         this.logger.log("Old Folder Id = " + oldFolderId);
         const newFolderId = this.filesService.getFolderIdbyName(schoolName);
         this.logger.log("New Folder Id = " + newFolderId);
+
         if (!newFolderId) {
             return {
                 status: false,
                 message: `Folder with School Name: ${schoolName} does not exist.`
             }
+        }
+        else if (newFolderId === oldFolderId) {
+            return {
+                status: false,
+                message: `Student Photo already exists in ${schoolName} folder.`
+            }
+
         }
 
         return await this.filesService.updateFileFolder(fileId, newFolderId);

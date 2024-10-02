@@ -8,7 +8,7 @@ import { DirectusAPIService } from '../apis/du-api-request.service';
 @Injectable()
 export class DirectusStudentsService {
     private readonly directusUrl = 'http:/localhost:8055'; // Replace with your Directus URL
-    private readonly directusToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijg4Nzk4NzgzLTIyNjQtNDM1OC05Nzg2LWMyZWY3ZWNkNDY1YiIsInJvbGUiOiJkMzAzMjQzNi01NzRhLTQ2ZDMtYWU0Mi00NTAzOGJlZmZhZGQiLCJhcHBfYWNjZXNzIjpmYWxzZSwiYWRtaW5fYWNjZXNzIjpmYWxzZSwiaWF0IjoxNzI2NzM0MzA3LCJleHAiOjE3MjY3MzUyMDcsImlzcyI6ImRpcmVjdHVzIn0.DmaH0uZGQmWqBqghxJJ5XtIJZoyHsyF5Mmc6CFDCuJk'
+    //private readonly directusToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijg4Nzk4NzgzLTIyNjQtNDM1OC05Nzg2LWMyZWY3ZWNkNDY1YiIsInJvbGUiOiJkMzAzMjQzNi01NzRhLTQ2ZDMtYWU0Mi00NTAzOGJlZmZhZGQiLCJhcHBfYWNjZXNzIjpmYWxzZSwiYWRtaW5fYWNjZXNzIjpmYWxzZSwiaWF0IjoxNzI2NzM0MzA3LCJleHAiOjE3MjY3MzUyMDcsImlzcyI6ImRpcmVjdHVzIn0.DmaH0uZGQmWqBqghxJJ5XtIJZoyHsyF5Mmc6CFDCuJk'
     private readonly logger = new Logger(DirectusStudentsService.name);
 
 
@@ -19,10 +19,20 @@ export class DirectusStudentsService {
     async fetchStudentDataByIds(ids: string[]): Promise<any> {
         try {
             this.logger.log("fetching  data for student ids=" + ids);
+            const endpointUrl = "/items/students";
 
+            const paramsObj = {
+                filter: {
+                    id: { _in: ids },
+                },
+            };
+
+            //const response = await this.directusRequestService.getRequest(endpointUrl, "fetchStudentDataByIds", { "key": "params", "value": paramsObj });
+            //return response;
+            const directusToken = await this.directusRequestService.getAccessToken();
             const response = await axios.get(`${this.directusUrl}/items/students`, {
                 headers: {
-                    Authorization: `Bearer ${this.directusToken}`,
+                    Authorization: `Bearer ${directusToken}`,
                 },
                 params: {
                     filter: {
@@ -35,7 +45,7 @@ export class DirectusStudentsService {
         } catch (error) {
             this.logger.error(error);
             throw new HttpException(
-                `Failed to fetch students from Directus`,
+                `Failed to fetchStudentDataByIds from Directus`,
                 HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }
@@ -48,7 +58,7 @@ export class DirectusStudentsService {
         catch (error) {
             this.logger.error(error);
             throw new HttpException(
-                `Failed to fetch student details from Directus`,
+                `Failed to fetch student details  by id from Directus`,
                 HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }
@@ -67,25 +77,28 @@ export class DirectusStudentsService {
             if (fileId) {
                 // Fetch the file from Directus
                 console.log("fetching file id=" + fileId);
+                const directusToken = await this.directusRequestService.getAccessToken();
+
                 const fileResponse = await axios.get(
                     `${this.directusUrl}/assets/${fileId}`,
                     {
                         headers: {
-                            Authorization: `Bearer ${this.directusToken}`,
+                            Authorization: `Bearer ${directusToken}`,
                         },
                         responseType: 'stream'
                     },
                 );
-                console.log("response recived" + fileId);
+                //const fileResponse = await this.directusRequestService.getRequest(`/assets/${fileId}`, 'downloadStudentPhotos', { "key": "responseType", "value": "stream" });
+                //this.logger.log("response recived" + JSON.stringify(fileResponse.data));
 
                 archive.append(fileResponse.data, {
-                    name: `student_${fileId}_${student}_photo.jpg`, // Customize the file name
+                    name: `student_${fileId}_${student.id}_photo.jpg`, // Customize the file name
                 });
-                console.log("archived" + fileId);
+                this.logger.log("archived" + fileId);
 
             }
         }
-        console.log("finalizing");
+        this.logger.log("finalizing");
 
         await archive.finalize(); // Finalize the archive
         this.logger.log("File path:" + zipFilePath);
