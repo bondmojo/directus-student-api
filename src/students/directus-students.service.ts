@@ -27,9 +27,9 @@ export class DirectusStudentsService {
                 },
             };
 
-            //const response = await this.directusRequestService.getRequest(endpointUrl, "fetchStudentDataByIds", { "key": "params", "value": paramsObj });
-            //return response;
-            const directusToken = await this.directusRequestService.getAccessToken();
+            const response = await this.directusRequestService.getRequest(endpointUrl, "fetchStudentDataByIds", { "key": "params", "value": paramsObj });
+            return response;
+            /* const directusToken = await this.directusRequestService.getAccessToken();
             const response = await axios.get(`${this.directusUrl}/items/students`, {
                 headers: {
                     Authorization: `Bearer ${directusToken}`,
@@ -39,7 +39,7 @@ export class DirectusStudentsService {
                         id: { _in: ids },
                     },
                 }
-            });
+            }); */
             this.logger.log("student response received" + JSON.stringify(response.data.data));
             return response.data.data;
         } catch (error) {
@@ -77,7 +77,7 @@ export class DirectusStudentsService {
             if (fileId) {
                 // Fetch the file from Directus
                 console.log("fetching file id=" + fileId);
-                const directusToken = await this.directusRequestService.getAccessToken();
+                /*const directusToken = await this.directusRequestService.getAccessToken();
 
                 const fileResponse = await axios.get(
                     `${this.directusUrl}/assets/${fileId}`,
@@ -87,8 +87,8 @@ export class DirectusStudentsService {
                         },
                         responseType: 'stream'
                     },
-                );
-                //const fileResponse = await this.directusRequestService.getRequest(`/assets/${fileId}`, 'downloadStudentPhotos', { "key": "responseType", "value": "stream" });
+                );*/
+                const fileResponse = await this.directusRequestService.getRequest(`/assets/${fileId}`, 'downloadStudentPhotos', { "key": "responseType", "value": "stream" });
                 //this.logger.log("response recived" + JSON.stringify(fileResponse.data));
 
                 archive.append(fileResponse.data, {

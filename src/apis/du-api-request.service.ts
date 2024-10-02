@@ -42,16 +42,24 @@ export class DirectusAPIService {
         this.logger.log("url=" + url);
 
         const params = paramObj ? { [paramObj.key]: paramObj.value } : {};
-        this.logger.log("params:" + JSON.stringify(params));
-
         try {
-            const response = await axios.get(url, {
+            let reqObj = {
                 headers: {
                     Authorization: `Bearer ${access_token}`,
                 },
-                //params
+            }
+            if (paramObj)
+                reqObj[paramObj.key] = paramObj.value;
+
+            this.logger.log("params:" + JSON.stringify(reqObj));
+            const response = await axios.get(url, reqObj);
+
+            /*const response = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`,
+                },
             },
-            );
+            );*/
 
             // if resource type is downloadStudentPhotos response contains binary data of photo
             if (resource === "downloadStudentPhotos") {
