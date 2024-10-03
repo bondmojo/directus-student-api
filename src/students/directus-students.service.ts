@@ -40,8 +40,8 @@ export class DirectusStudentsService {
                     },
                 }
             }); */
-            this.logger.log("student response received" + JSON.stringify(response.data.data));
-            return response.data.data;
+            //this.logger.log("student response received" + JSON.stringify(response.data.data));
+            //return response.data.data;
         } catch (error) {
             this.logger.error(error);
             throw new HttpException(
